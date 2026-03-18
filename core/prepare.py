@@ -20,7 +20,7 @@ class DataPreparer:
         """
         Downloads OHLCV data from Binance Public API.
         """
-        url = "https://api.binance.com/api/v3/klines"
+        url = "https://data-api.binance.vision/api/v3/klines"
         params = {
             "symbol": symbol,
             "interval": interval,
