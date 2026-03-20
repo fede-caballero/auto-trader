@@ -20,7 +20,10 @@ class DataPreparer:
         """
         Downloads OHLCV data from Binance Public API.
         """
-        url = "https://data-api.binance.vision/api/v3/klines"
+        urls = [
+            "https://data-api.binance.vision/api/v3/klines",
+            "https://api.binance.com/api/v3/klines",
+        ]
         params = {
             "symbol": symbol,
             "interval": interval,
@@ -28,9 +31,22 @@ class DataPreparer:
         }
         
         logger.info(f"Downloading {limit} klines for {symbol} at {interval} interval...")
+        
+        response = None
+        for url in urls:
+            try:
+                response = requests.get(url, params=params)
+                response.raise_for_status()
+                break  # Success, stop trying
+            except requests.exceptions.RequestException:
+                logger.warning(f"API {url} failed for {symbol}, trying next...")
+                continue
+        
+        if response is None or response.status_code != 200:
+            logger.error(f"All API endpoints failed for {symbol}")
+            return None
+        
         try:
-            response = requests.get(url, params=params)
-            response.raise_for_status()
             data = response.json()
             
             # Binance kline format
